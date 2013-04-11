@@ -1,0 +1,6 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine on
+    RewriteRule ^ajax(.*)$ ajax.php [L]
+    RewriteCond $1 !^(index\.php|file|install|module\/(.*)\/static\/|static|theme)
+    RewriteRule ^(.*)$ index.php [L]
+</IfModule>

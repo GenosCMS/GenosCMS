@@ -1,0 +1,39 @@
+<module>
+    <data>
+        <module_id>core</module_id>
+        <product_id>core</product_id>
+        <is_core>1</is_core>
+        <is_active>1</is_active>
+        <is_menu>0</is_menu>
+        <menu />
+        <phrase_var_name />
+    </data>
+    <menus>
+        <menu module_id="core" parent_var_name="" section_id="main" var_name="menu_home" ordering="1" url_value="" />
+        <menu module_id="core" parent_var_name="" section_id="main_header" var_name="menu_admin" ordering="1" url_value="admin" />
+        <menu module_id="core" parent_var_name="menu_home" section_id="" var_name="menu_home_sub" ordering="12" url_value="core.index-member" />
+    </menus>
+    <setting_groups>
+        <group module_id="core" phrase_var_name="setting_group_general">general</group>
+    </setting_groups>
+    <settings>
+        <setting group_id="general" module_id="core" type_id="string" var_name="site_title" phrase_var_name="setting_site_title" is_hidden="0">Polaris</setting>
+        <setting group_id="general" module_id="core" type_id="string" var_name="title_delim" phrase_var_name="setting_title_delim" is_hidden="0"><![CDATA[&bull;]]></setting>
+        <setting group_id="general" module_id="core" type_id="string" var_name="default_module" phrase_var_name="setting_default_module" is_hidden="0">core</setting>
+        <setting group_id="general" module_id="core" type_id="string" var_name="default_controller" phrase_var_name="setting_default_controller" is_hidden="0">index</setting>
+        <setting group_id="general" module_id="core" type_id="string" var_name="default_theme" phrase_var_name="setting_default_theme" is_hidden="0">default</setting>
+    </settings>
+    <phrases>
+        <phrase module_id="core" var_name="welcome">Bienvenido {name}</phrase>
+    </phrases>
+    <tables>
+        core_menu
+        core_module
+        core_product
+        core_setting
+        core_setting_group
+    </tables>
+    <install>
+        // Insertar producto core
+    </install>
+</module>
