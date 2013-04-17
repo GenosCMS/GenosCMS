@@ -106,10 +106,34 @@
  * ---------------------------------------------------------------
  */
     $TPL->getLayout($TPL->displayLayout);
+    $TPL->clean();
+    
+/*
+ * --------------------------------------------------------------------
+ *  Debug Info
+ * --------------------------------------------------------------------
+ *
+ * Información de depuración.
+ *
+ */
+    DEBUG_MODE ? Core::getLib('debug')->getInfo() : null;
     
 /*
  * ---------------------------------------------------------------
- *  Liberar memoria.
+ *  Usar GZIP para enviar los datos.
  * ---------------------------------------------------------------
  */
-    $TPL->clean();
+    if (Core::getParam('core.use_gzip'))
+    {
+        $content = ob_get_contents();
+        
+        ob_clean();
+        
+        if (function_exists('gzencode'))
+        {
+            $gzipContent = gzencode($content, Core::getParam('core.gzip_level'), FORCE_GZIP);
+            header("Content-Encoding: gzip");
+        }
+        
+        echo (isset($gzipContent) ? $gzipContent : $content);
+    }

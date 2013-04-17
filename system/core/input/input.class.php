@@ -134,7 +134,7 @@ class Core_Input {
         $superGlobal = '_' . strtoupper($name);
         if ( isset($GLOBALS[$superGlobal]))
         {
-            $this->inputs[$name] = Core::getLib('input', array($GLOBALS[$superGlobal]));
+            $this->inputs[$name] = Core::getLib('input', $GLOBALS[$superGlobal]);
             return $this->inputs[$name];
         }
     }

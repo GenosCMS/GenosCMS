@@ -60,5 +60,5 @@ function tpl_compiler_form_input($tagArgs, &$compiler)
         }
     }
 
-	return 'echo Core::getLib(\'html.form\')->formInput(' . $name . ', ' . $value . ', ' . $type . ', \'' . $attrs . '\');';
+	return 'echo Core::getLib(\'form.helper\')->formInput(' . $name . ', ' . $value . ', ' . $type . ', \'' . $attrs . '\');';
 }

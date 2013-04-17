@@ -1,6 +1,105 @@
+#
+#   Ajustes de Apache
+#
+
+#Proteger los archivos y directorios de miradas indiscretas.
+<FilesMatch "\.(tpl|xml|.*sql)$">
+  Order allow,deny
+</FilesMatch>
+
+# No mostrar el listado de un directorio.
+Options -Indexes
+
+# Seguir enlaces simbólicos en ese directorio.
+Options +FollowSymLinks
+
+# Manejar cualquier error 404
+ErrorDocument 404 /index.php
+
+# Ajuste el controlador predeterminado.
+DirectoryIndex index.php index.html index.htm
+
+# Requiere que mod_expires esté habilitado.
+<IfModule mod_expires.c>
+    # Habilitar caducidad.
+    ExpiresActive On
+
+    # Almacenar en memoria caché todos los archivos durante 2 semanas después del acceso (A).
+    ExpiresDefault A1209600
+
+    <FilesMatch \.php$>
+        # No permitir scripts PHP almacenarse en caché a menos que explícitamente se enviarán cabeceras de caché ellos mismos.
+        ExpiresActive Off
+    </FilesMatch>
+</IfModule>
+
+# Reglas de redirección
 <IfModule mod_rewrite.c>
     RewriteEngine on
+    
+    # Bloquear el acceso a directorios "ocultos" cuyos nombres comienzan con un punto.
+    # Esto incluye a los directorios utilizados por los sistemas de control de versiones
+    # como Subversion o Git.
+    #
+    # NOTA: Esto sólo funciona cuando se carga el módulo mod_rewrite. Si usted no tiene mod_rewrite instalado,
+    # debería eliminar estos directorios de su directorio raíz o de otro modo pueden descargar la información
+    # de estos directorios.
+    RewriteRule "(^|/)\." - [F]
+    
+    # Puede utilizar uno de los siguientes ajustes para redirigir a los usuarios a la URL de su preferencia,
+    # ya sea con o sin el prefijo "www.". Elija sólo una opción:
+    #
+    # Para redirigir los usuarios a su sitio CON el prefijo "www."
+    # (http://example.com/... será redirigido a http://www.example.com/...)
+    # descomente lo siguiente:
+    # RewriteCond %{HTTP_HOST} !^www\. [NC]
+    # RewriteRule ^ http://www.%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+    #
+    # Para redirigir los usuarios a su sitio SIN el prefijo "www."
+    # (http://www.example.com/... será redirigido a http://example.com/...)
+    # descomente lo siguiente:
+    # RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+    # RewriteRule ^ http://%1%{REQUEST_URI} [L,R=301]
+    
+    # Modificar el RewriteBase si está utilizando Genos CMS en un subdirectorio o en un VirtualDocumentRoot
+    # y las reglas de reescritura no están funcionando correctamente.
+    # Por ejemplo si su sitio está en http://example.com/genos descomente y modifique la siguiente línea:
+    # RewriteBase /genos
+    #
+    # Si su sitio se ejecuta en un VirtualDocumentRoot en http://example.com/,
+    # descomente la siguiente línea:
+    # RewriteBase /
+    
+    # Pasar solicitudes AJAX al archivo ajax.php
     RewriteRule ^ajax(.*)$ ajax.php [L]
-    RewriteCond $1 !^(index\.php|file|install|module\/(.*)\/static\/|static|theme)
-    RewriteRule ^(.*)$ index.php [L]
+    
+    # Pasar todas las solicitudes que no hacen referencia a archivos del sistema al index.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} !=/favicon.ico
+    RewriteRule ^ index.php [L]
+    
+    # Reglas para servir correctamente archivos CSS y JS comprimidos con gzip.
+    # Requiere tanto mod_rewrite y mod_headers estén habilitados.
+    <IfModule mod_headers.c>
+        # Servir archivos CSS si existen y si el cliente acepta gzip.
+        RewriteCond %{HTTP:Accept-encoding} gzip
+        RewriteCond %{REQUEST_FILENAME}\.gz -s
+        RewriteRule ^(.*)\.css $1\.css\.gz [QSA]
+        
+        # Servir archivos JS si existen y si el cliente acepta gzip.
+        RewriteCond %{HTTP:Accept-encoding} gzip
+        RewriteCond %{REQUEST_FILENAME}\.gz -s
+        RewriteRule ^(.*)\.js $1\.js\.gz [QSA]
+        
+        # Servir tipos correctos de contenido y evitar gzip doble con mod_deflate.
+        RewriteRule \.css\.gz$ - [T=text/css,E=no-gzip:1]
+        RewriteRule \.js\.gz$ - [T=text/javascript,E=no-gzip:1]
+        
+        <FilesMatch "(\.js\.gz|\.css\.gz)$">
+            # Servir tipo de codificación correcta.
+            Header set Content-Encoding gzip
+            Header append Vary Accept-Encoding
+        </FilesMatch>
+    </IfModule>
 </IfModule>

@@ -9,16 +9,65 @@ class Core_Component_Controller_Index extends Core_Component {
      */
     public function main()
     {
-        $variable = '';
-        
-        if ($this->input->count() && $this->input->getMethod() == 'POST')
+        if (count($_POST) > 0)
         {
-            $variable = $this->input->cookie->get('session');
+            // Reglas
+            $fields= array(
+                array(
+                    'field' => 'username',
+                    'value' => $this->input->post->getString('username'),
+                    'label' => 'core.username',
+                    'rules' => 'required|is_valid[user_name]|callback_checkUser'
+                ),
+                array(
+                    'field' => 'name',
+                    'value' => $this->input->post->getString('name'),
+                    'label' => 'core.form_name',
+                    'rules' => 'required|is_valid[name]'
+                ),
+                array(
+                    'field' => 'pwd',
+                    'value' => $this->input->post->getRaw('pwd'),
+                    'label' => 'core.form_pawd',
+                    'rules' => 'required'
+                ),
+                array(
+                    'field' => 'pwd2',
+                    'value' => $this->input->post->getRaw('pwd2'),
+                    'label' => 'core.form_pawd',
+                    'rules' => 'required|matches[pwd]'
+                ),
+                array(
+                    'field' => 'year',
+                    'value' => $this->input->post->getInt('name'),
+                    'label' => 'core.form_year',
+                    'rules' => 'required|exact_length[4]'
+                ),
+                array(
+                    'field' => 'url',
+                    'value' => $this->input->post->get('url', null, 'array'),
+                    'label' => 'core.url',
+                    'rules' => 'is_valid[url]'
+                )
+            );
+            
+            $isPassed = Core::getLib('form')->set($fields)->validate($this);
+            if ($isPassed == true)
+            {
+                echo 'Exito';exit;
+            }
+            else
+            {
+                //$this->template->assign('formErrors', Core::getLib('form')->error());
+            }
         }
         
-        $this->template
-            ->assign('variable', $variable)
-            ->js('core/ajax.js', 'static_script')
-            ->title('Index');
+        //
+        $this->template->title('Index');
+    }
+    
+    public function checkUser($str)
+    {
+        return 'Checado';
     }   
 }

@@ -59,13 +59,3 @@
     require BOOT_PATH . 'cms.php';
     
     ob_end_flush();
-
-/*
- * --------------------------------------------------------------------
- *  Debug Info
- * --------------------------------------------------------------------
- *
- * Información de depuración.
- *
- */
-    DEBUG_MODE ? Core::getLib('debug')->getInfo() : null;

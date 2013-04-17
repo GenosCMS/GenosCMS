@@ -59,5 +59,5 @@ function tpl_compiler_form_checkbox($tagArgs, &$compiler)
         }
     }
 
-	return 'echo Core::getLib(\'html.form\')->formOption(' . $name . ', ' . $value . ', ' . $checked . ', \'checkbox\', \'' . $attrs . '\');';
+	return 'echo Core::getLib(\'form.helper\')->formOption(' . $name . ', ' . $value . ', ' . $checked . ', \'checkbox\', \'' . $attrs . '\');';
 }

@@ -10,7 +10,7 @@
 // ------------------------------------------------------------------------
 
 /**
- * Form
+ * Form Helper
  * 
  * Nos ayuda a generar facilmente campos de formulario. 
  * 
@@ -21,18 +21,18 @@
  * {form_radio}
  * {form_select}
  * 
- * @package     Framework\Core\Html
+ * @package     Framework\Core\Form
  * @since       1.0.0
  * @final
  */
-class Core_Html_Form {
+class Core_Form_Helper {
  
     /**
      * Constructor
      */
     public function __construct()
     {
-        DEBUG_MODE ? Core::mark('html.form.init') : null;
+        DEBUG_MODE ? Core::mark('form.helper.init') : null;
     }
     
     // --------------------------------------------------------------------
@@ -168,7 +168,7 @@ class Core_Html_Form {
      */
 	private function _setValue($field = '', $default = '')
 	{
-        if ( ! Core::getLib('form.validator')->isOn())
+        if (Core::getLib('form')->count() == 0)
         {
             if ( ! isset($_POST[$field]))
             {
@@ -178,7 +178,7 @@ class Core_Html_Form {
             return $this->_formPrep($_POST[$field]);
         }
         
-        return $this->_formPrep(Core::getLib('form.validator')->setValue($field, $default), $field);
+        return $this->_formPrep(Core::getLib('form')->setValue($field, $default), $field);
 	}
     
     // --------------------------------------------------------------------
@@ -194,7 +194,12 @@ class Core_Html_Form {
      */
     private function _setOption($field, $value = '', $default = false)
     {
-        if ( ! Core::getLib('form.validator')->isOn())
+        if (count($_POST) == 0)
+        {
+            return $default;
+        }
+        
+        if (Core::getLib('form')->count() == 0)
         {
             // No se envió el parámetro
             if ( ! isset($_POST[$field]))
@@ -217,7 +222,7 @@ class Core_Html_Form {
             return true;
         }
         
-        return Core::getLib('form.validator')->setOption($field, $value, $default);
+        return Core::getLib('form')->setOption($field, $value, $default);
     }
     
     // --------------------------------------------------------------------

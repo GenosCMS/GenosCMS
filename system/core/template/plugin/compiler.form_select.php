@@ -58,5 +58,5 @@ function tpl_compiler_form_select($tagArgs, &$compiler)
         }
     }
 
-	return 'echo Core::getLib(\'html.form\')->formSelect(' . $name . ', ' . $options . ', ' . $selected . ', \'' . $attrs . '\');';
+	return 'echo Core::getLib(\'form.helper\')->formSelect(' . $name . ', ' . $options . ', ' . $selected . ', \'' . $attrs . '\');';
 }

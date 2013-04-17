@@ -70,7 +70,7 @@
     define('TPL_PATH', ROOT . DS . 'theme' . DS);
     
     // Sufijo de las plantillas
-    define('TPL_SUFFIX', '.view.php');
+    define('TPL_SUFFIX', '.view.tpl');
     
 /*
  * ---------------------------------------------------------------

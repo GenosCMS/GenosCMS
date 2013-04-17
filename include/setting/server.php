@@ -93,3 +93,8 @@ $_CONF['cookie_prefix']	= '';
 $_CONF['cookie_secure']	= false;
 
 $_CONF['core.is_installed'] = true;
+
+
+// GZIp
+$_CONF['core.use_gzip'] = true;
+$_CONF['core.gzip_level'] = 1;

@@ -96,6 +96,10 @@ class Core_Filter_Input {
 			case 'ARRAY':
 				$result = (array) $source;
 				break;
+                
+            case 'RAW':
+                $result = (string) $source;
+                break;
 
 			default:
 				// Are we dealing with an array?
