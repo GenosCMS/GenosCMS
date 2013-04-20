@@ -12,7 +12,7 @@
 /**
  * Template
  * 
- * Esta clase se encarga de la gestion de plantillas. 
+ * Esta clase se encarga de la gestión de plantillas.
  * 
  * También nos permite agregar información y archivos a la plantilla principal,
  * desde un componente.
@@ -188,7 +188,7 @@ class Core_Template {
     // --------------------------------------------------------------------
     
     /**
-     * Borrar de momoria todo o una variable espesífica.
+     * Borrar de memoria todo o una variable específica.
      * 
      * @param array|string $name Nombre o arreglos de nombres de variables.
      * 
@@ -225,7 +225,7 @@ class Core_Template {
      */
     public function title($title)
     {
-        // Podemos usar farses.
+        // Podemos usar frases.
         if (strpos($title, '.') !== false)
         {
             $title = Core::getPhrase($title);
@@ -430,7 +430,7 @@ class Core_Template {
     /**
      * Generar URL de un Asset.
      * 
-     * @param array $asset Arreglo con los assset (CSS/JS)
+     * @param array $asset Arreglo con los assets (CSS/JS)
      * 
      * @return string
      */
@@ -481,13 +481,14 @@ class Core_Template {
     }
     
     // --------------------------------------------------------------------
-    
+
     /**
      * Generar la URL de un archivo localizado en un tema.
-     * 
+     *
      * @param string $type Tipo de archivo.
      * @param string $file Nombre del archivo.
-     * 
+     * @param string $module Módulo de los archivos
+     *
      * @return string
      */
     private function _getStyleUrl($type, $file = null, $module = null)
@@ -677,7 +678,7 @@ class Core_Template {
     private function _getFromCache($file)
     {
         if ( ! $this->_isCached($file))
-        {   
+        {
             $content = (file_exists($file)) ? file_get_contents($file) : '';
             
             Core::getLib('template.compiler')->compile($this->_getCachedName($file), $content, $file);

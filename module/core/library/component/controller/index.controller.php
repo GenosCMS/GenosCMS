@@ -39,7 +39,7 @@ class Core_Component_Controller_Index extends Core_Component {
                 ),
                 array(
                     'field' => 'year',
-                    'value' => $this->input->post->getInt('name'),
+                    'value' => $this->input->post->getInt('year', ''),
                     'label' => 'core.form_year',
                     'rules' => 'required|exact_length[4]'
                 ),

@@ -132,6 +132,22 @@
         if (function_exists('gzencode'))
         {
             $gzipContent = gzencode($content, Core::getParam('core.gzip_level'), FORCE_GZIP);
+        }
+        else
+        {
+            if (function_exists('gzcompress') && function_exists('crc32'))
+            {
+                $size = strlen($content);
+                $crc = crc32($content);
+                $gzipContent = "\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff";
+                $gzipContent .= substr(gzcompress($content, Core::getParam('core.gzip_level')), 2, -4);
+                $gzipContent .= pack('V', $crc);
+                $gzipContent .= pack('V', $size);
+            }
+        }
+
+        if (isset($gzipContent))
+        {
             header("Content-Encoding: gzip");
         }
         

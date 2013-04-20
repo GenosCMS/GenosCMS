@@ -12,7 +12,7 @@
 /**
  * Nos permite validar campos en base a expresiones regulares predefinidas.
  * 
- * Las expresiones diponibles se encuentran en el archivo: /include/setting/regex.php
+ * Las expresiones disponibles se encuentran en el archivo: /include/setting/regex.php
  * 
  * @package     Framework\Core\Form\Plugin
  * @since       1.0.0
@@ -31,10 +31,13 @@
  */
 function form_rule_is_valid($str, $type)
 {
-    $_regex = array();
-    
-    require_once SETTING_PATH . 'regex.php';
-    
+    static $_regex;
+
+    if ( ! is_array($_regex))
+    {
+        require SETTING_PATH . 'regex.php';
+    }
+
     if ( ! isset($_regex[$type]))
     {
         return false;

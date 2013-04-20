@@ -12,9 +12,9 @@
 $_CONF['db']['driver'] = 'mysql';
 $_CONF['db']['host'] = '127.0.0.1';
 $_CONF['db']['user'] = 'root';
-$_CONF['db']['pass'] = '';
-$_CONF['db']['name'] = 'cinema';
-$_CONF['db']['prefix'] = 'cm_';
+$_CONF['db']['pass'] = '336699@db';
+$_CONF['db']['name'] = 'genos_cms';
+$_CONF['db']['prefix'] = 'gn_';
 $_CONF['db']['port'] = '';
 
 /*
@@ -96,5 +96,5 @@ $_CONF['core.is_installed'] = true;
 
 
 // GZIp
-$_CONF['core.use_gzip'] = true;
+$_CONF['core.use_gzip'] = false;
 $_CONF['core.gzip_level'] = 1;

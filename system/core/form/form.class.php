@@ -42,11 +42,11 @@ class Core_Form {
      * @var array
      */
     private $_error = array();
-    
+
     /**
      * Constructor
-     * 
-     * @return void
+     *
+     * @return \Core_Form
      */
     public function __construct()
     {
@@ -63,7 +63,7 @@ class Core_Form {
      * @param string $label Frase del nombre del campo.
      * @param string $rules Reglas que serán aplicadas al campo.
      * 
-     * @return Core_Form_Validator
+     * @return \Core_Form
      */
     public function set($field, $value = '', $label = '', $rules = '')
     {
@@ -107,14 +107,29 @@ class Core_Form {
         
         return $this;
     }
-    
+
     // --------------------------------------------------------------------
-    
+
+    /**
+     * Obtener información de un campo.
+     *
+     * @param string $field Nombre del campo.
+     * @param string $var Variable a retornar.
+     *
+     * @return string
+     */
+    public function get($field, $var = 'value')
+    {
+        return (isset($this->_data[$field][$var])) ? $this->_data[$field][$var] : null;
+    }
+
+    // --------------------------------------------------------------------
+
     /**
      * Validar campos.
      * 
      * Realiza el proceso de validación para cada campo asignado por self::set().
-     * Si harémos validaciones personalizadas necesitamos la instancia del
+     * Si haremos validaciones personalizadas necesitamos la instancia del
      * controlador como parámetro.
      * 
      * @param object $object Controlador frontal.
@@ -139,7 +154,10 @@ class Core_Form {
         {
             $this->_exec($row, explode('|', $row['rules']), $row['value']);
         }
-        var_dump($this);
+
+        echo '<pre>'; var_dump($this); echo '</pre>';
+
+        return true;
     }
     
     // --------------------------------------------------------------------
@@ -170,14 +188,16 @@ class Core_Form {
     }
     
     // --------------------------------------------------------------------
-    
+
     /**
      * Ejecutar la validación de un campo.
-     * 
+     *
      * @param array $row Datos del campo a validar.
+     * @param array $rules Lista de reglas.
+     * @param string $value Valor del campo.
      * @param int $cycle Auxiliar para campos de tipo array.
-     * 
-     * @return void    
+     *
+     * @return void
      */
     private function _exec($row, $rules, $value, $cycle = 0)
     {
@@ -195,7 +215,7 @@ class Core_Form {
         
         // --------------------------------------------------------------------
         
-        // Validamos cada regla
+        // Validar cada regla
         foreach ($rules as $rule)
         {
             $is_array = false;
@@ -270,8 +290,8 @@ class Core_Form {
                     continue;
                 }
                 
-                // Validamos plugin
-                $result = $plugin($value, $param);
+                // Validar plugin
+                $result = $plugin($value, $param, $this);
                 
                 if ($is_array == true)
                 {
