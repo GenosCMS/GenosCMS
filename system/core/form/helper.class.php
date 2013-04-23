@@ -54,14 +54,14 @@ class Core_Form_Helper {
         // Campos de texto normales
         if ($type == 'textarea')
         {
-            $defaults = array('name' => $name);
+            $defaults = array('name' => $name, 'id' => 'field_' . $name);
             
             return '<textarea ' . $this->_parseFormAttributes($name, $defaults) . $extra . '>' . $this->_setValue($name, $value) . '</textarea>';
         }
         else
         {
-            $defaults = array('type' => $type, 'name' => $name, 'value' => $this->_setValue($name, $value));
-            
+            $defaults = array('type' => $type, 'name' => $name, 'id' => 'field_' . $name, 'value' => $this->_setValue($name, $value));
+
             return '<input ' . $this->_parseFormAttributes($name, $defaults) . $extra . ' />';
         }
     }
@@ -92,7 +92,7 @@ class Core_Form_Helper {
         
         $multiple = (count($selected) > 1 && strpos($extra, 'multiple') === false) ? ' multiple="multiple"' : '';
         
-        $form = '<select name="'.$name.'"'.$extra.$multiple.">\n";
+        $form = '<select id="field_'.$name.'" name="'.$name.'"'.$extra.$multiple.">\n";
         
         foreach ($options as $key => $val)
         {
@@ -139,7 +139,7 @@ class Core_Form_Helper {
      */
     public function formOption($name, $value = '', $checked = false, $type = '', $extra = '')
     {
-        $defaults = array('type' => $type, 'name' => $name, 'value' => $value);
+        $defaults = array('type' => $type, 'name' => $name, 'id' => 'field_' . $name, 'value' => $value);
 
         $checked = $this->_setOption($name, $value, $checked);
         
@@ -165,7 +165,7 @@ class Core_Form_Helper {
      */
 	private function _setValue($field = '', $default = '')
 	{
-        if (Core::getLib('form')->count() == 0)
+        if (Core::isLoaded('form') == false)
         {
             if ( ! isset($_POST[$field]))
             {
@@ -174,7 +174,7 @@ class Core_Form_Helper {
             
             return $this->_formPrep($_POST[$field]);
         }
-        
+
         return $this->_formPrep(Core::getLib('form')->setValue($field, $default), $field);
 	}
     
@@ -191,7 +191,7 @@ class Core_Form_Helper {
      */
     private function _setOption($field, $value = '', $default = false)
     {
-        if (Core::getLib('form')->count() == 0)
+        if (Core::isLoaded('form') == false)
         {
             // No se envió el parámetro
             if ( ! isset($_POST[$field]))
@@ -231,7 +231,7 @@ class Core_Form_Helper {
      */
     private function _setSelect($field, $default = array())
     {
-        if (Core::getLib('form')->count() == 0)
+        if (Core::isLoaded('form') == false)
         {
             if ( ! isset($_POST[$field]))
             {
@@ -288,6 +288,10 @@ class Core_Form_Helper {
 			{
 				$val = $this->_formPrep($val, $default['name']);
 			}
+            elseif ($key == 'id')
+            {
+                $val = str_replace('[]', '', $val);
+            }
 
 			$att .= $key . '="' . $val . '" ';
 		}

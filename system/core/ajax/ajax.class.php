@@ -288,7 +288,7 @@ class Core_Ajax {
      * $this->html('#result', $this->getContent(), '.show()');
      * </code>
      * 
-     * @param $clean Se establece en TRUE si se debe tratar de limpiar el contenido en función de cómo se va a devolver.
+     * @param bool $clean Se establece en TRUE si se debe tratar de limpiar el contenido en función de cómo se va a devolver.
      * 
      * @return string Devuelve la salida, lo que le permite utilizarlo en cualquier forma que desee.  
      */

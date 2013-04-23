@@ -44,6 +44,20 @@ class Core_Form {
     private $_error = array();
 
     /**
+     * Prefijo de los mensajes de error.
+     *
+     * @var string
+     */
+    private $_prefix = '<span class="help-inline">';
+
+    /**
+     * Sufijo de los mensajes de error.
+     *
+     * @var string
+     */
+    private $_suffix = '</span>';
+
+    /**
      * Constructor
      *
      * @return \Core_Form
@@ -164,7 +178,8 @@ class Core_Form {
         {
             return false;
         }
-        
+
+        // Validar reglas para cada campo.
         foreach ($this->_data as $field => $row)
         {
             // Obtenemos el valor.
@@ -172,9 +187,12 @@ class Core_Form {
 
             // Validar campo...
             $this->_exec($row, explode('|', $row['rules']), $this->_data[$field]['value']);
+
+            // Reasignar valores
+            Core::getLib('input')->{$method}->set($field, $this->_data[$field]['value']);
         }
 
-        // Si no hay errores el formulario es válido.
+        // Retornamos el estado del formulario.
         if (count($this->_error) == 0)
         {
             return true;
@@ -191,17 +209,44 @@ class Core_Form {
      * Obtiene el error generado en un campo o un arreglo con todos los errores.
      *
      * @param string $field NULL devuelve todos los errores
+     * @param string $prefix Prefijo del error.
+     * @param string $suffix Sufijo del error.
      *
      * @return string Mensaje de error
      */
-    public function error($field = null)
+    public function error($field = null, $prefix = '', $suffix = '')
     {
-        if (is_null($field))
+        // Campo con valores de tipo array, por el momento sólo soporta un nivel.
+        if (strpos($field, '[') !== false && preg_match_all('/\[(.*?)\]/', $field, $matches))
         {
-            return $this->_error;
+            $field = current(explode('[', $field));
         }
 
-        return (isset($this->_error[$field]) ? $this->_error[$field] : '');
+        // Errores para js: $Form ver /static/js/core/form.js
+        if (is_null($field))
+        {
+            $error = array();
+            foreach ($this->_data as $field => $row)
+            {
+                $error[$field] = (isset($this->_error[$field]) ? $this->_error[$field] : null);
+            }
+
+            return $error;
+        }
+
+        // Prefijo
+        if ($prefix == '')
+        {
+            $prefix = $this->_prefix;
+        }
+
+        // Sufijo
+        if ($suffix == '')
+        {
+            $suffix = $this->_suffix;
+        }
+
+        return (isset($this->_error[$field]) ? $prefix.$this->_error[$field].$suffix : '');
     }
 
     // --------------------------------------------------------------------
@@ -476,18 +521,22 @@ class Core_Form {
                 if ( isset($this->_data[$row['field']]['error'][$rulePhrase]))
                 {
 
-                    $this->_error[$row['field']] = $this->_data[$row['field']]['error'][$rulePhrase];
+                    $message = $this->_data[$row['field']]['error'][$rulePhrase];
                 }
                 // Tal vez es un mensaje de error por defecto.
                 else
                 {
                     $rulePhrase = 'core.form_rule_' . (($rule == 'is_valid') ? 'is_valid_' . $param : $rule);
-                    $this->_error[$row['field']] = Core::getPhrase($rulePhrase, array(
+                    $message = Core::getPhrase($rulePhrase, array(
                             'field' => $row['label'],
                             'param' => $param,
                         )
                     );
                 }
+
+                // Asignamos el error
+                $this->_error[$row['field']] = $message;
+
                 // Si se generó un error, no tiene caso continuar validando las demás reglas.
                 break;
             }

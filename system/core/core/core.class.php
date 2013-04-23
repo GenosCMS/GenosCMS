@@ -62,18 +62,17 @@ final class Core {
      * 
      * @param string $class Nombre de la librería
      * @param array $params Arreglo con los parámetros con que será inicializada la clase.
-     * @param string $dir Directorio desde donde se caran las librerías teniendo como base /system/
      * 
      * @return object Un objeto de la clase será retornado.
      */
-    public static function &getLib($class, $params = array(), $dir = null)
+    public static function &getLib($class, $params = array())
     {
         if (substr($class, 0, 5) != 'core.')
         {
             $class = 'core.' . $class;
         }
         
-        $hash = md5($class . serialize($params) . $dir);
+        $hash = md5($class . serialize($params));
         
         if (isset(self::$_object[$hash]))
         {
@@ -177,9 +176,31 @@ final class Core {
         
         return self::$_object[$hash];
     }
-    
+
     // --------------------------------------------------------------------
-    
+
+    /**
+     * Comprobar si una clase ha sido cargada.
+     *
+     * @param string $class Nombre de la clase.
+     * @param array $params Parámetros de la clase.
+     *
+     * @return bool
+     */
+    public static function isLoaded($class, $params = array())
+    {
+        if (substr($class, 0, 5) != 'core.')
+        {
+            $class = 'core.' . $class;
+        }
+
+        $hash = md5($class . serialize($params));
+
+        return (isset(self::$_object[$hash]) ? true : false);
+    }
+
+    // --------------------------------------------------------------------
+
     /**
      * Agrega el prefijo a la tabla.
      * 
@@ -222,7 +243,7 @@ final class Core {
      */
     public static function setParam($name, $value = '')
     {
-        return Core::getLib('setting')->set($name, $value);
+        Core::getLib('setting')->set($name, $value);
     }
     
     // --------------------------------------------------------------------
@@ -240,7 +261,7 @@ final class Core {
      */
     public static function getBlock($class, $params = array(), $templateParams = false)
     {
-        return Core::getLib('module')->getComponent($class, $params, 'block', $templateParams);
+        Core::getLib('module')->getComponent($class, $params, 'block', $templateParams);
     }
     
     // --------------------------------------------------------------------
@@ -307,6 +328,18 @@ final class Core {
      */
     public static function mark($label)
     {
-        return Core::getLib('debug')->mark($label); 
-    }   
+        Core::getLib('debug')->mark($label);
+    }
+
+    // --------------------------------------------------------------------
+
+    /**
+     * Saber si se enviaron datos mediante $_POST
+     *
+     * @return bool
+     */
+    public static function isPost()
+    {
+        return (count($_POST) > 0) ? true : false;
+    }
 }

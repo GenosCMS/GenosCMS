@@ -35,7 +35,7 @@ DirectoryIndex index.php index.html index.htm
 
 # Reglas de redirección
 <IfModule mod_rewrite.c>
-    RewriteEngine on
+    RewriteEngine On
     
     # Bloquear el acceso a directorios "ocultos" cuyos nombres comienzan con un punto.
     # Esto incluye a los directorios utilizados por los sistemas de control de versiones
@@ -71,7 +71,7 @@ DirectoryIndex index.php index.html index.htm
     # RewriteBase /
     
     # Pasar solicitudes AJAX al archivo ajax.php
-    RewriteRule ^ajax(.*)$ ajax.php [L]
+    RewriteRule ^ajax ajax.php [L]
     
     # Pasar todas las solicitudes que no hacen referencia a archivos del sistema al index.php
     RewriteCond %{REQUEST_FILENAME} !-f
