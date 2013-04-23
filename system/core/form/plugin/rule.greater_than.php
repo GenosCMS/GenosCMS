@@ -10,9 +10,9 @@
 // ------------------------------------------------------------------------
 
 /**
- * Nos permite comparar dos campos.
+ * Valor numérico mayor que...
  *
- * Se usa para saber si el contenido de dos campos es igual.
+ * Compara que el valor del campo actual sea mayor al valor especificado.
  *
  * @package     Framework\Core\Form\Plugin
  * @since       1.0.0
@@ -22,17 +22,19 @@
 // ------------------------------------------------------------------------
 
 /**
- * form_rule_matches()
+ * form_rule_greater_than()
  *
- * @param string $str Valor del campo actual.
- * @param string $field Campo con el cual vamos a comprar.
- * @param object $form Clase principal del formulario.
+ * @param string $str Valor del campo.
+ * @param int $min Valor máximo.
  *
  * @return string bool
  */
-function form_rule_matches($str, $field, &$form)
+function form_rule_greater_than($str, $min)
 {
-    $value = $form->get($field);
+    if ( ! is_numeric($str))
+    {
+        return false;
+    }
 
-    return (is_null($value) || $str !== $value) ? false : true;
+    return ($str > $min);
 }

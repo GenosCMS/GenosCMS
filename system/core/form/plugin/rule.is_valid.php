@@ -22,10 +22,10 @@
 // ------------------------------------------------------------------------
  
 /**
- * rule_required()
+ * form_rule_is_valid()
  * 
  * @param string $str Valor del campo.
- * @param string $type Tipo de expresión a usar.
+ * @param string $type Tipo o expresión a validar.
  * 
  * @return string bool
  */
@@ -33,11 +33,13 @@ function form_rule_is_valid($str, $type)
 {
     static $_regex;
 
+    // Cargamos el archivo de expresiones.
     if ( ! is_array($_regex))
     {
         require SETTING_PATH . 'regex.php';
     }
 
+    // Toda expresion debe ser definida dentro del archivo /include/setting/regex.php
     if ( ! isset($_regex[$type]))
     {
         return false;

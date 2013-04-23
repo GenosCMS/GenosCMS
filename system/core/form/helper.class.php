@@ -12,7 +12,7 @@
 /**
  * Form Helper
  * 
- * Nos ayuda a generar facilmente campos de formulario. 
+ * Nos ayuda a generar fácilmente campos de formulario.
  * 
  * Trabaja en conjunto con los plugin de plantilla:
  * 
@@ -38,7 +38,9 @@ class Core_Form_Helper {
     // --------------------------------------------------------------------
     
     /**
-     * Generar un campo de texto estándar.
+     * Generar un campo estándar.
+     *
+     * Nos permite generar campos de cualquier tipo.
      * 
      * @param string $name Nombre del campo
      * @param string $value Valor que tendrá el campo.
@@ -83,15 +85,9 @@ class Core_Form_Helper {
             $selected = array($selected);
         }
         
-        // Si no hay un estado seleccionado vamos a tratar de establecerlo automáticamente
-        if (count($selected) === 0)
-        {
-            if (isset($_POST[$name]))
-            {
-                $selected = array($_POST[$name]);
-            }
-        }
-        
+        // Si no hay un estado seleccionado vamos a tratar de establecerlo automáticamente.
+        $selected = $this->_setSelect($name, $selected);
+
         if ($extra != '') $extra = ' '.$extra;
         
         $multiple = (count($selected) > 1 && strpos($extra, 'multiple') === false) ? ' multiple="multiple"' : '';
@@ -129,28 +125,29 @@ class Core_Form_Helper {
     }
     
     // --------------------------------------------------------------------
-    
+
     /**
      * Generar un campo tipo 'checkbox' ó 'radio'
-     * 
+     *
      * @param string $name Nombre del campo.
      * @param string $value Valor del campo.
-     * @param bool $checked TRUE genera un campo selecionado por defecto.
+     * @param bool $checked TRUE genera un campo seleccionado por defecto.
+     * @param string $type Tipo del campo.
      * @param string $extra Atributos extra del campo.
-     * 
+     *
      * @return string Código HTML del campo.
      */
     public function formOption($name, $value = '', $checked = false, $type = '', $extra = '')
     {
         $defaults = array('type' => $type, 'name' => $name, 'value' => $value);
-        
+
         $checked = $this->_setOption($name, $value, $checked);
         
         if ($checked == true)
         {
             $defaults['checked'] = 'checked';
         }
-        
+
         return '<input ' . $this->_parseFormAttributes($name, $defaults) . $extra . ' />';
     }
     
@@ -184,21 +181,16 @@ class Core_Form_Helper {
     // --------------------------------------------------------------------
     
     /**
-     * Establecer si el campo estará selecionado.
-     * 
+     * Establecer si el campo estará seleccionado.
+     *
      * @param string $field Nombre del campo.
      * @param string $value Valor del campo.
-     * @param bool $default TRUE genera un campo selecionado por defecto.
-     * 
+     * @param bool $default TRUE genera un campo seleccionado por defecto.
+     *
      * @return bool El campo irá seleccionado o no. (TRUE/FALSE)
      */
     private function _setOption($field, $value = '', $default = false)
     {
-        if (count($_POST) == 0)
-        {
-            return $default;
-        }
-        
         if (Core::getLib('form')->count() == 0)
         {
             // No se envió el parámetro
@@ -221,18 +213,52 @@ class Core_Form_Helper {
             
             return true;
         }
-        
+
         return Core::getLib('form')->setOption($field, $value, $default);
     }
-    
+
     // --------------------------------------------------------------------
-    
+
+    /**
+     * Establecer valores seleccionados.
+     *
+     * Esto aplica para campos tipo select.
+     *
+     * @param string $field Nombre del campo.
+     * @param array $default Opción seleccionada por defecto.
+     *
+     * @return array
+     */
+    private function _setSelect($field, $default = array())
+    {
+        if (Core::getLib('form')->count() == 0)
+        {
+            if ( ! isset($_POST[$field]))
+            {
+                return $default;
+            }
+
+            if (is_array($_POST[$field]))
+            {
+                return $_POST[$field];
+            }
+            else
+            {
+                return array($_POST[$field]);
+            }
+        }
+
+        return Core::getLib('form')->setSelect($field, $default);
+    }
+
+    // --------------------------------------------------------------------
+
     /**
      * Analizar atributos de un campo.
-     * 
-     * @param array $attrs Lista de atributos.
+     *
+     * @param array $attributes Lista de atributos.
      * @param array $default Atributos que será agregados por defecto.
-     * 
+     *
      * @return string Atributos en formato: var="value"
      */
     private function _parseFormAttributes($attributes, $default)

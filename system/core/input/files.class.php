@@ -74,8 +74,10 @@ class Core_Input_Files extends Core_Input {
      * Método para decodificar los datos.
      * 
      * @param array $data Datos del archivo.
+     *
+     * @return array
      */
-    protected function decodeData(array $data)
+    protected function decodeData($data)
 	{
 		$result = array();
 

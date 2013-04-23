@@ -20,10 +20,9 @@
 // ------------------------------------------------------------------------
  
 /**
- * rule_required()
+ * form_rule_required()
  * 
  * @param string $value Valor del campo.
- * @param string $param Parámetro para el plugin.
  * 
  * @return string bool
  */

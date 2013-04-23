@@ -52,20 +52,23 @@ class Core_Form {
     {
         DEBUG_MODE ? Core::mark('form.init') : null;
     }
-    
+
     /**
      * Establecer reglas para uno o más campos.
-     * 
+     *
      * Podemos enviar mediante un arreglo los datos de los campos que queremos validar.
-     * 
+     *
      * @param array|string $field Nombre del campo o arreglo de reglas de varios campos.
-     * @param mixed $value Este será el valor del campo, por lo general obtenido por Core_Input
      * @param string $label Frase del nombre del campo.
      * @param string $rules Reglas que serán aplicadas al campo.
-     * 
+     * @param null $default Valor por defecto que puede tener el campo.
+     * @param string $filter Filtro que será aplicado al campo.
+     * @param array $error Contiene los mensajes de error para las reglas aplicadas al campo.
+     *
+     * @internal param mixed $value Este será el valor del campo, por lo general obtenido por Core_Input
      * @return \Core_Form
      */
-    public function set($field, $value = '', $label = '', $rules = '')
+    public function set($field, $label = '', $rules = '', $default = null, $filter = '', $error = array())
     {
         // Si se trata de un arreglo de reglas, las asignamos una por una.
         if (is_array($field))
@@ -79,12 +82,14 @@ class Core_Form {
                 }
                 
                 // Realizamos un par de comprobaciones
-                $row['value'] = ( isset($row['value']) ? $row['value'] : '');
-                $row['label'] = ( isset($row['label']) ? $row['label'] : $row['field']);
-                $row['rules'] = ( isset($row['rules']) ? $row['rules'] : '');
+                $row['label']   = ( isset($row['label']) ? $row['label'] : $row['field']);
+                $row['rules']   = ( isset($row['rules']) ? $row['rules'] : '');
+                $row['default'] = (isset($row['default']) ? $row['default'] : null);
+                $row['filter']  = (isset($row['filter']) ? $row['filter'] : '');
+                $row['error']   = ( isset($row['error']) ? $row['error'] : array());
                 
                 // Asignamos
-                $this->set($row['field'], $row['value'], $row['label'], $row['rules']);
+                $this->set($row['field'], $row['label'], $row['rules'], $row['default'], $row['filter'], $row['error']);
             }
             
             return $this;
@@ -95,14 +100,23 @@ class Core_Form {
         {
             return $this;
         }
+
+        // Campo con valores de tipo array, por el momento sólo soporta un nivel.
+        if (strpos($field, '[') !== false && preg_match_all('/\[(.*?)\]/', $field, $matches))
+        {
+            $field = current(explode('[', $field));
+            $filter = 'array';
+        }
         
         // Agregamos los datos
         $this->_data[$field] = array(
             'field'     => $field,
-            'value'     => $value,
             'label'     => $label,
             'rules'     => $rules,
-            'error'     => '',
+            'default'   => $default,
+            'filter'    => $filter,
+            'error'     => $error,
+            'value'     => null,
         );
         
         return $this;
@@ -133,10 +147,11 @@ class Core_Form {
      * controlador como parámetro.
      * 
      * @param object $object Controlador frontal.
+     * @param string $method Método por el cual recogemos los datos del formulario, (post, get, etc...).
      * 
      * @return bool TRUE si los campos pararon la validación, FALSE en caso contrario.
      */
-    public function validate($object = null)
+    public function validate($object = null, $method = 'post')
     {
         // Controlador frontal.
         if ( ! is_null($object))
@@ -145,40 +160,188 @@ class Core_Form {
         }
         
         // Sin campos asignados
-        if ( count($this->_data) == 0)
+        if (count($this->_data) == 0)
         {
             return false;
         }
         
         foreach ($this->_data as $field => $row)
         {
-            $this->_exec($row, explode('|', $row['rules']), $row['value']);
+            // Obtenemos el valor.
+            $this->_data[$field]['value'] = Core::getLib('input')->{$method}->get($field, $row['default'], $row['filter']);
+
+            // Validar campo...
+            $this->_exec($row, explode('|', $row['rules']), $this->_data[$field]['value']);
         }
 
-        echo '<pre>'; var_dump($this); echo '</pre>';
+        // Si no hay errores el formulario es válido.
+        if (count($this->_error) == 0)
+        {
+            return true;
+        }
 
-        return true;
+        return false;
     }
-    
+
     // --------------------------------------------------------------------
-    
+
     /**
-     * 
+     * Obtener error.
+     *
+     * Obtiene el error generado en un campo o un arreglo con todos los errores.
+     *
+     * @param string $field NULL devuelve todos los errores
+     *
+     * @return string Mensaje de error
+     */
+    public function error($field = null)
+    {
+        if (is_null($field))
+        {
+            return $this->_error;
+        }
+
+        return (isset($this->_error[$field]) ? $this->_error[$field] : '');
+    }
+
+    // --------------------------------------------------------------------
+
+    /**
+     * Obtener campos.
+     *
+     * Genera una lista de los campos validados con su respectivo valor.
+     *
+     * @return array Lista de campos.
+     */
+    public function fields()
+    {
+        $fields = array();
+
+        foreach ($this->_data as $field => $row)
+        {
+            $fields[$field] = $row['value'];
+        }
+
+        return $fields;
+    }
+
+    // --------------------------------------------------------------------
+
+    /**
+     * Valor por defecto para el campo.
+     *
+     * Esta función es usada por Core_Form_Helper, esta nos permite mostrar
+     * los valores por defecto de los campos dentro de la plantilla.
+     *
+     * @param string $field Nombre del campo.
+     * @param string $default Valor por defecto establecido en la plantilla.
+     *
+     * @return string Valor del campo.
      */
     public function setValue($field, $default)
+    {
+        // Campo con valores de tipo array, por el momento sólo soporta un nivel.
+        if (strpos($field, '[') !== false && preg_match_all('/\[(.*?)\]/', $field, $matches))
+        {
+            $field = current(explode('[', $field));
+        }
+
+        if ( ! isset($this->_data[$field]))
+        {
+            return $default;
+        }
+
+        if (is_array($this->_data[$field]['value']))
+        {
+            return array_shift($this->_data[$field]['value']);
+        }
+        
+        return $this->_data[$field]['value'];
+    }
+
+    // --------------------------------------------------------------------
+
+    /**
+     * Valor por defecto para campos tipo (radio|checkbox).
+     *
+     * Esta función es usada por Core_Form_Helper, esta nos permite mostrar
+     * los campos seleccionados por defecto dentro de la plantilla.
+     *
+     * @param string $field Nombre del campo.
+     * @param string $value Valor del campo.
+     * @param bool $default TRUE campo seleccionado, FALSE campo no seleccionado.
+     *
+     * @return bool
+     */
+    public function setOption($field, $value, $default = false)
     {
         if ( ! isset($this->_data[$field]))
         {
             return $default;
         }
-        
-        return $this->_data[$field]['value'];
+
+        $field = $this->_data[$field]['value'];
+
+        if (is_array($field))
+        {
+            if ( ! in_array($value, $field))
+            {
+                return false;
+            }
+        }
+        else
+        {
+            if (($field === '' || $value === '') || ($field != $value))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
-    
+
     // --------------------------------------------------------------------
-    
+
     /**
-     * Contar campos validados.
+     * Valor por defecto para campos tipo select.
+     *
+     * Esta función es usada por Core_Form_Helper, esta nos permite mostrar
+     * las opciones seleccionadas por defecto dentro de la plantilla.
+     *
+     * @param string $field Nombre del campo.
+     * @param array $default TRUE campo seleccionado, FALSE campo no seleccionado.
+     *
+     * @return array
+     */
+    public function setSelect($field, $default = array())
+    {
+        // Campo con valores de tipo array, por el momento sólo soporta un nivel.
+        if (strpos($field, '[') !== false && preg_match_all('/\[(.*?)\]/', $field, $matches))
+        {
+            $field = current(explode('[', $field));
+        }
+
+        if ( ! isset($this->_data[$field]))
+        {
+            return $default;
+        }
+
+        $field = $this->_data[$field]['value'];
+
+        if (is_array($field))
+        {
+            return $field;
+        }
+        else
+        {
+            return array($field);
+        }
+    }
+
+    // --------------------------------------------------------------------
+
+    /**
+     * Contar campos que fueron declarados.
      * 
      * @return int Total de campos.
      */
@@ -305,31 +468,28 @@ class Core_Form {
             
             // --------------------------------------------------------------------
             
-            // Mensaje de error
+            // Error
             if ($result === false)
             {
-                // Regla
-                $rule = ($rule == 'is_valid') ? 'is_valid_' . $param : $rule;
-                // Generamos el mensaje
-                $message = Core::getPhrase('core.form_rule_' . $rule, array(
-                        'field' => $row['label'],
-                        'param' => $param,                    
-                    )
-                );
-                
-                // Asignamos error, los errores se generarán en el orden de las reglas.
-                if ($this->_data[$row['field']]['error'] != '')
+                // Buscamos un mensaje de error personalizado.
+                $rulePhrase = ($rule == 'is_valid') ? 'is_valid[' . $param . ']' : $rule;
+                if ( isset($this->_data[$row['field']]['error'][$rulePhrase]))
                 {
-                    continue;
+
+                    $this->_error[$row['field']] = $this->_data[$row['field']]['error'][$rulePhrase];
                 }
-                
-                $this->_data[$row['field']]['error'] = $message;
-                
-                // Errores
-                if ( ! isset($this->_error[$row['field']]))
+                // Tal vez es un mensaje de error por defecto.
+                else
                 {
-                    $this->_error[$row['field']] = $message;
+                    $rulePhrase = 'core.form_rule_' . (($rule == 'is_valid') ? 'is_valid_' . $param : $rule);
+                    $this->_error[$row['field']] = Core::getPhrase($rulePhrase, array(
+                            'field' => $row['label'],
+                            'param' => $param,
+                        )
+                    );
                 }
+                // Si se generó un error, no tiene caso continuar validando las demás reglas.
+                break;
             }
         }
     }

@@ -13,7 +13,7 @@
  * Expresiones regulares.
  * 
  * La lista de expresiones regulares de este archivo son utilizadas por el
- * validador de formularios, más espesífico el plugin rule.is_valid.php
+ * plugin rule.is_valid.php
  * 
  * @package     Framework\Setting
  * @since       1.0.0
@@ -56,3 +56,75 @@
  * Verifica direcciones URL
  */    
     $_regex['url'] = '/^(?:(ftp|http|https):)?(?:\/\/(?:((?:%[0-9a-f]{2}|[\-a-z0-9_.!~*\'\(\);:&=\+\$,])+)@)?(?:((?:[a-z0-9](?:[\-a-z0-9]*[a-z0-9])?\.)*[a-z](?:[\-a-z0-9]*[a-z0-9])?)|([0-9]{1,3}(?:\.[0-9]{1,3}){3}))(?::([0-9]*))?)?((?:\/(?:%[0-9a-f]{2}|[\-a-z0-9_.!~*\'\(\):@&=\+\$,;])+)+)?\/?(?:\?.*)?$/i';
+
+/*
+ * ---------------------------------------------------------------
+ *  Caracteres Alfabéticos
+ * ---------------------------------------------------------------
+ *
+ * Solo permite caracteres del alfabeto inglés.
+ */
+    $_regex['alpha'] = '/^([a-z])+$/i';
+
+/*
+ * ---------------------------------------------------------------
+ *  Caracteres Alfanuméricos
+ * ---------------------------------------------------------------
+ *
+ * Solo permite caracteres del alfabeto inglés y números.
+ */
+    $_regex['alpha_numeric'] = '/^([a-z0-9])+$/i';
+
+/*
+ * ---------------------------------------------------------------
+ *  Caracteres Alfanuméricos + Guiones
+ * ---------------------------------------------------------------
+ *
+ * Solo permite caracteres del alfabeto inglés, números y guiones.
+ */
+    $_regex['alpha_dash'] = '/^([-a-z0-9_-])+$/i';
+
+/*
+ * ---------------------------------------------------------------
+ *  Caracteres numéricos
+ * ---------------------------------------------------------------
+ *
+ * Solo permite caracteres numéricos.
+ */
+    $_regex['numeric'] = '/^[\-+]?[0-9]*\.?[0-9]+$/';
+
+/*
+ * ---------------------------------------------------------------
+ *  Números enteros
+ * ---------------------------------------------------------------
+ *
+ * Solo permite números enteros.
+ */
+    $_regex['integer'] = '/^[\-+]?[0-9]+$/';
+
+/*
+ * ---------------------------------------------------------------
+ *  Números con decimales.
+ * ---------------------------------------------------------------
+ *
+ * Solo permite números con decimal.
+ */
+    $_regex['decimal'] = '/^[\-+]?[0-9]+\.[0-9]+$/';
+
+/*
+ * ---------------------------------------------------------------
+ *  Números naturales.
+ * ---------------------------------------------------------------
+ *
+ * Solo permite números naturales.
+ */
+    $_regex['natural'] = '/^[0-9]+$/';
+
+/*
+ * ---------------------------------------------------------------
+ *  Base64
+ * ---------------------------------------------------------------
+ *
+ * Solo permite cadenas con una codificación Base64
+ */
+    $_regex['base64'] = '/[^a-zA-Z0-9\/\+=]/';

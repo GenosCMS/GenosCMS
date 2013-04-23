@@ -10,9 +10,9 @@
 // ------------------------------------------------------------------------
 
 /**
- * Nos permite comparar dos campos.
+ * Valor único.
  *
- * Se usa para saber si el contenido de dos campos es igual.
+ * Comprueba la existencia de un valor en la base de datos.
  *
  * @package     Framework\Core\Form\Plugin
  * @since       1.0.0
@@ -22,17 +22,18 @@
 // ------------------------------------------------------------------------
 
 /**
- * form_rule_matches()
+ * form_rule_is_unique()
  *
- * @param string $str Valor del campo actual.
- * @param string $field Campo con el cual vamos a comprar.
- * @param object $form Clase principal del formulario.
+ * @param string $str Valor del campo.
+ * @param int $field Campo de la base de datos en formato: table.field_name
  *
  * @return string bool
  */
-function form_rule_matches($str, $field, &$form)
+function form_rule_is_unique($str, $field)
 {
-    $value = $form->get($field);
+    list($table, $field) = explode('.', $field);
 
-    return (is_null($value) || $str !== $value) ? false : true;
+    $exists = Core::getLib('database')->select('COUNT(*)')->from($table)->where(array($field => $str))->exec('field');
+
+    return ($exists == 0) ? true : false;
 }

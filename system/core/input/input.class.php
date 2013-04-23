@@ -18,7 +18,7 @@
  * 
  * Todos siguen la siguiente estructura:
  * 
- * getFilter($name, $default = null); Dónde "Filter" es el filtro que usarémos.
+ * getFilter($name, $default = null); Dónde "Filter" es el filtro que usaremos.
  * 
  * @method integer getInt()   Detecta el primer valor, entero con signo.
  * @method integer getUint()  Detecta el primer valor entero sin signo.
@@ -30,7 +30,6 @@
  * @method string  getBase64()Permite sólo caracteres válidos en la codificación Base64
  * @method string  getString()Devuelve una cadena totalmente decodificada.
  * @method string  getHtml()  Devuelve una cadena con las entidades HTML y etiquetas intactas, sujeto al filtro XSS.
- * @method array   getArray() Devuelve el valor como una matriz sin filtrado adicional.
  * 
  * @package     Framework\Core\Input
  * @since       1.0.0
@@ -91,7 +90,7 @@ class Core_Input {
      * @param string $name Nombre de la función
      * @param array $arguments Argumentos ([0] => Nombre de la variable, [1] => Valor por defecto)
      * 
-     * @return void
+     * @return mixed
      */
     public function __call($name, $arguments)
     {
@@ -114,9 +113,9 @@ class Core_Input {
     /**
      * Método mágico para obtener el objeto de entrada.
      * 
-     * @param $name Nombre del objecto
+     * @param string $name Nombre del objeto.
      * 
-     * @return object
+     * @return Core_Input
      */
     public function __get($name)
     {
@@ -146,11 +145,11 @@ class Core_Input {
      * 
      * @param string $name Nombre del campo.
      * @param mixed $default Si no existe un valor retornamos este.
-     * @param string $filter Filtro que aplicarémos al valor.
+     * @param string $filter Filtro que aplicaremos al valor.
      * 
-     * @return mixed El valor 'filtrado'
+     * @return mixed El valor 'filtrado'.
      */
-    public function get($name, $default = null, $filter = 'cmd')
+    public function get($name, $default = null, $filter = '')
     {
         if (isset($this->data[$name]))
         {
@@ -166,11 +165,11 @@ class Core_Input {
      * Obtiene un arreglo con los valores de la solicitud.
      * 
      * @param array $vars Arreglo de valores que queremos recuperar.
-     * @param mixed $datasource Arreglo desde el cual recuperarémos los datos.
+     * @param mixed $dataSource Arreglo desde el cual recuperaremos los datos.
      * 
      * @return array Valores filtrados.
      */
-	public function getArray(array $vars, $datasource = null)
+	public function getArray(array $vars, $dataSource = null)
 	{
 		$results = array();
 
@@ -178,24 +177,24 @@ class Core_Input {
 		{
 			if (is_array($v))
 			{
-				if (is_null($datasource))
+				if (is_null($dataSource))
 				{
 					$results[$k] = $this->getArray($v, $this->get($k, null, 'array'));
 				}
 				else
 				{
-					$results[$k] = $this->getArray($v, $datasource[$k]);
+					$results[$k] = $this->getArray($v, $dataSource[$k]);
 				}
 			}
 			else
 			{
-				if (is_null($datasource))
+				if (is_null($dataSource))
 				{
 					$results[$k] = $this->get($k, null, $v);
 				}
-				elseif (isset($datasource[$k]))
+				elseif (isset($dataSource[$k]))
 				{
-					$results[$k] = Core::getLib('filter.input')->clean($datasource[$k], $v);
+					$results[$k] = Core::getLib('filter.input')->clean($dataSource[$k], $v);
 				}
 				else
 				{
